@@ -23,7 +23,7 @@ class InfoSite : IInfoSite
         var fileJson = GetFileInfo(site);
         var obj = GetInfoSiteFileJson(fileJson);
 
-        if (obj == null || obj.Date == DateTime.MinValue)
+        if (obj == null || obj.DueDate == DateTime.MinValue)
             return null;
         return obj;
     }

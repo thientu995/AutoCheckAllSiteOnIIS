@@ -33,7 +33,7 @@ class Startup
             var obj = infoSite.GetSiteInfo(site);
             if (obj != null)
             {
-                obj.TotalDays = (obj.Date - dtCurrent).TotalDays;
+                obj.TotalDays = (obj.DueDate - dtCurrent).TotalDays;
                 notification.Check(site, obj);
                 if (obj.TotalDays <= Settings.TotalDaysStopSite)
                 {
