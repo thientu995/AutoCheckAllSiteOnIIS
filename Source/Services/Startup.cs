@@ -9,50 +9,60 @@ interface IMain
 
 class Startup
 {
-    readonly DateTime dtCurrent = DateTime.Now.Date;
     readonly IInfoSite infoSite;
-    readonly INotification notification;
-    readonly IEnumerable<Site> siteStart;
+    readonly IProcessor processor;
+    readonly IEnumerable<Site> lstSite;
 
     public Startup(
         ILogger<Startup> logger,
         IInfoSite info,
-        INotification notify,
+        IProcessor notify,
         ServerManager server
         )
     {
         this.infoSite = info;
-        this.notification = notify;
-        this.siteStart = server.Sites.Where(x => x.State == ObjectState.Started || x.State == ObjectState.Starting).ToList();
+        this.processor = notify;
+        this.lstSite = server.Sites.ToList();
     }
 
-    public Startup Start()
+    public void Run()
     {
-        foreach (var site in this.siteStart)
+        //Auto stop site with expired
+        this.CheckSites(this.lstSite.Where(x => x.State == ObjectState.Started));
+
+        //Auto run site with activate the deadline 
+        this.CheckSites(this.lstSite.Where(x => x.State == ObjectState.Stopped));
+
+        Console.WriteLine("Complete!");
+#if DEBUG
+        Console.ReadLine();
+#endif
+    }
+
+    void CheckSites(IEnumerable<Site> sites)
+    {
+        if (Settings.ParallelEnable)
         {
-            var obj = infoSite.GetSiteInfo(site);
-            if (obj != null)
+            Parallel.ForEach(sites, new ParallelOptions { MaxDegreeOfParallelism = Settings.DefaultMaxDegreeOfParallelism }, site =>
             {
-                obj.TotalDays = (obj.DueDate - dtCurrent).TotalDays;
-                notification.Check(site, obj);
-                if (obj.TotalDays <= Settings.TotalDaysStopSite)
-                {
-                    notification.StopSite(site);
-                    continue;
-                }
-                if (obj.TotalDays <= Settings.TotalDaysExpired)
-                {
-                    notification.NotificationExpired(site, obj);
-                    continue;
-                }
+                this.CheckSite(site);
+            });
+        }
+        else
+        {
+            foreach (var site in sites)
+            {
+                this.CheckSite(site);
             }
         }
-        return this;
     }
 
-    public void Complete()
+    void CheckSite(Site site)
     {
-        Console.WriteLine("Complete!");
-        //Console.ReadLine();
+        var obj = infoSite.GetSiteInfo(site);
+        if (obj != null)
+        {
+            processor.Run(site, obj);
+        }
     }
 }

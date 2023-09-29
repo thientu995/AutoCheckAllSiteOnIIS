@@ -4,13 +4,13 @@ using System.Text.Json;
 interface IInfoSite
 {
     SiteInfoModel? GetSiteInfo(Site site);
-    SiteInfoModel? GetInfoSiteFileJson(string? pathFile);
 }
 
 class InfoSite : IInfoSite
 {
     readonly IPhysicalPath physicalPath;
     readonly JsonSerializerOptions serializerSetting;
+    readonly DateTime dtCurrent = DateTime.Now.Date;
 
     public InfoSite(JsonSerializerOptions ss, IPhysicalPath pp)
     {
@@ -23,12 +23,22 @@ class InfoSite : IInfoSite
         var fileJson = GetFileInfo(site);
         var obj = GetInfoSiteFileJson(fileJson);
 
-        if (obj == null || obj.DueDate == DateTime.MinValue)
+        if (obj == null
+            || obj.DueDate == DateTime.MinValue
+            || obj.Status != StatusEnum.Active
+            )
             return null;
+
+        var firstMonth = obj.DueDate.AddDays(-(obj.DueDate.Day - 1));
+
+        obj.TotalDays = (obj.DueDate - dtCurrent).TotalDays;
+        obj.TotalDaysFirstMonth = (firstMonth - dtCurrent).TotalDays;
+        obj.TotalDaysLastMonth = (firstMonth.AddMonths(1).AddDays(-1) - dtCurrent).TotalDays;
+        obj.InfoSite = site;
         return obj;
     }
 
-    public SiteInfoModel? GetInfoSiteFileJson(string? pathFile)
+    private SiteInfoModel? GetInfoSiteFileJson(string? pathFile)
     {
         if (string.IsNullOrEmpty(pathFile)) return null;
 
