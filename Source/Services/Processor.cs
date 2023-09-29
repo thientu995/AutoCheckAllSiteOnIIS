@@ -10,9 +10,10 @@ class Processor : IProcessor
     Site site;
     SiteInfoModel info;
 
-    public Processor()
+    readonly INotification notification;
+    public Processor(INotification notification)
     {
-
+        this.notification = notification;
     }
 
     public void Run(Site site, SiteInfoModel info)
@@ -51,11 +52,11 @@ class Processor : IProcessor
     {
         if (this.info.TotalDays >= 0)
         {
-            Console.WriteLine($"{this.site.Name} - {this.info.TotalDays} days left to expire! The site will stop after {this.info.TotalDaysLastMonth} days");
+            this.notification.WriteInfoLog($"{this.site.Name} - {this.info.TotalDays} days left to expire! The site will stop after {this.info.TotalDaysLastMonth} days");
         }
         else
         {
-            Console.WriteLine($"{this.site.Name} - expired {this.info.TotalDays * -1} days! The site will stop after {this.info.TotalDaysLastMonth} days");
+            this.notification.WriteInfoLog($"{this.site.Name} - expired {this.info.TotalDays * -1} days! The site will stop after {this.info.TotalDaysLastMonth} days");
         }
     }
 
@@ -64,11 +65,11 @@ class Processor : IProcessor
         var state = this.site.Stop();
         if (state == ObjectState.Stopped || state == ObjectState.Stopping)
         {
-            Console.WriteLine($"{this.site.Name} - {ObjectState.Stopped}");
+            this.notification.WriteInfoLog($"{this.site.Name} - {ObjectState.Stopped}");
         }
         else
         {
-            Console.WriteLine($"{this.site.Name} - Could not stop website!");
+            this.notification.WriteInfoLog($"{this.site.Name} - Could not stop website!");
         }
     }
 
@@ -77,11 +78,11 @@ class Processor : IProcessor
         var state = this.site.Start();
         if (state == ObjectState.Started || state == ObjectState.Starting)
         {
-            Console.WriteLine($"{this.site.Name} - {ObjectState.Started}");
+            this.notification.WriteInfoLog($"{this.site.Name} - {ObjectState.Started}");
         }
         else
         {
-            Console.WriteLine($"{this.site.Name} - Could not start website!");
+            this.notification.WriteInfoLog($"{this.site.Name} - Could not start website!");
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Web.Administration;
+﻿using Microsoft.Web.Administration;
 
 interface IMain
 {
@@ -12,14 +11,16 @@ class Startup
     readonly IInfoSite infoSite;
     readonly IProcessor processor;
     readonly IEnumerable<Site> lstSite;
+    readonly INotification notification;
 
     public Startup(
-        ILogger<Startup> logger,
+        INotification notification,
         IInfoSite info,
         IProcessor notify,
         ServerManager server
         )
     {
+        this.notification = notification;
         this.infoSite = info;
         this.processor = notify;
         this.lstSite = server.Sites.ToList();
@@ -33,7 +34,7 @@ class Startup
         //Auto run site with activate the deadline 
         this.CheckSites(this.lstSite.Where(x => x.State == ObjectState.Stopped));
 
-        Console.WriteLine("Complete!");
+        this.notification.WriteInfoLog("Complete!");
 #if DEBUG
         Console.ReadLine();
 #endif

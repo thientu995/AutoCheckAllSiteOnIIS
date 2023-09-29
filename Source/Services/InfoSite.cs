@@ -11,9 +11,11 @@ class InfoSite : IInfoSite
     readonly IPhysicalPath physicalPath;
     readonly JsonSerializerOptions serializerSetting;
     readonly DateTime dtCurrent = DateTime.Now.Date;
+    readonly INotification notification;
 
-    public InfoSite(JsonSerializerOptions ss, IPhysicalPath pp)
+    public InfoSite(INotification no, JsonSerializerOptions ss, IPhysicalPath pp)
     {
+        this.notification = no;
         this.serializerSetting = ss;
         this.physicalPath = pp;
     }
@@ -65,7 +67,7 @@ class InfoSite : IInfoSite
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            this.notification.WriteErrorLog(ex.Message);
             return null;
         }
     }
