@@ -45,9 +45,11 @@ class Startup
         this.CheckSites(this.lstSite.Where(x => x.State == ObjectState.Stopped));
 
         this.notification.WriteInfoLog("Complete!");
-#if DEBUG
-        Console.ReadLine();
-#endif
+        if (!Settings.AutoClose)
+        {
+            Console.ReadLine();
+        }
+        Environment.Exit(1);
     }
 
     void CheckSites(IEnumerable<Site> sites)

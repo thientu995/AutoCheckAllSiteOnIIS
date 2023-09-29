@@ -25,7 +25,7 @@ class Settings : ISettings
     {
         get
         {
-            var value = config?.GetValue<int>(nameof(DefaultMaxDegreeOfParallelism)) ?? 8;
+            var value = config?.GetValue<int>("Settings:" + nameof(DefaultMaxDegreeOfParallelism)) ?? 8;
             return value > 0 ? value : 8;
         }
     }
@@ -34,7 +34,15 @@ class Settings : ISettings
     {
         get
         {
-            return config?.GetValue<bool>(nameof(ParallelEnable)) ?? true;
+            return config?.GetValue<bool>("Settings:" + nameof(ParallelEnable)) ?? true;
+        }
+    }
+
+    public static bool AutoClose
+    {
+        get
+        {
+            return config?.GetValue<bool>("Settings:" + nameof(AutoClose)) ?? true;
         }
     }
 }
