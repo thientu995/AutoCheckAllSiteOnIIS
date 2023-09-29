@@ -25,7 +25,7 @@ class Settings : ISettings
     {
         get
         {
-            var value = config?.GetValue<int>("Settings:" + nameof(DefaultMaxDegreeOfParallelism)) ?? 8;
+            var value = config?.GetValue<int>("Settings:" + nameof(DefaultMaxDegreeOfParallelism)) ?? 0;
             return value > 0 ? value : 8;
         }
     }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Web.Administration;
 
@@ -22,8 +21,7 @@ class Startup
         IInfoSite info,
         IProcessor notify,
         ServerManager server,
-        IConfiguration config,
-        IHost host
+        IConfiguration config
         )
     {
         this.config = config;
@@ -31,9 +29,6 @@ class Startup
         this.infoSite = info;
         this.processor = notify;
         this.lstSite = server.Sites.ToList();
-
-        //Get Setting
-        new Settings(host.Services.GetRequiredService<IConfiguration>());
     }
 
     public void Run(IHost host)

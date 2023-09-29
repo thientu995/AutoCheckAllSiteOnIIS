@@ -13,6 +13,10 @@ class RegisterServices
 
     static void Services(HostBuilderContext context, IServiceCollection services)
     {
+        //Get Setting
+        new Settings(context.Configuration);
+
+        //setting json
         var jsonOption = new JsonSerializerOptions(JsonSerializerDefaults.Web)
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
