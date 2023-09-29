@@ -1,12 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Web.Administration;
-
-interface IMain
-{
-    Startup Start();
-    void Complete();
-}
 
 class Startup
 {
@@ -31,7 +24,7 @@ class Startup
         this.lstSite = server.Sites.ToList();
     }
 
-    public void Run(IHost host)
+    public void Run()
     {
         //Auto stop site with expired
         this.CheckSites(this.lstSite.Where(x => x.State == ObjectState.Started));
@@ -40,11 +33,6 @@ class Startup
         this.CheckSites(this.lstSite.Where(x => x.State == ObjectState.Stopped));
 
         this.notification.WriteInfoLog("Complete!");
-        if (!Settings.AutoClose)
-        {
-            Console.ReadLine();
-        }
-        Environment.Exit(1);
     }
 
     void CheckSites(IEnumerable<Site> sites)
