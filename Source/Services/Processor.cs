@@ -27,29 +27,22 @@ class Processor : IProcessor
     {
         if (site.State == ObjectState.Started)
         {
-            if (this.info.TotalDaysLastMonth <= Settings.TotalDaysStopSite)
-            {
-                this.StopSite();
-                return;
-            }
-            if (this.info.TotalDays <= Settings.TotalDaysExpired)
-            {
-                this.NotificationExpired();
-                return;
-            }
+            this.StopSite();
+            this.NotificationExpired();
         }
-        else
+        else if (site.State == ObjectState.Stopped)
         {
-            if (this.info.TotalDays > Settings.TotalDaysStopSite)
-            {
-                this.StartSite();
-                return;
-            }
+            this.StartSite();
         }
     }
 
     void NotificationExpired()
     {
+        if (this.info.TotalDays > Settings.TotalDaysExpired)
+        {
+            return;
+        }
+
         if (this.info.TotalDays >= 0)
         {
             this.notification.WriteInfoLog($"{this.site.Name} - {this.info.TotalDays} days left to expire! The site will stop after {this.info.TotalDaysLastMonth} days");
@@ -62,6 +55,9 @@ class Processor : IProcessor
 
     void StopSite()
     {
+        if (this.info.TotalDaysLastMonth > Settings.TotalDaysStopSite)
+            return;
+
         var state = this.site.Stop();
         if (state == ObjectState.Stopped || state == ObjectState.Stopping)
         {
@@ -75,6 +71,10 @@ class Processor : IProcessor
 
     void StartSite()
     {
+        if (this.info.TotalDays <= Settings.TotalDaysStopSite)
+        {
+            return;
+        }
         var state = this.site.Start();
         if (state == ObjectState.Started || state == ObjectState.Starting)
         {

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Web.Administration;
-using System.Text.Json;
 
 interface IInfoSite
 {
@@ -8,23 +7,27 @@ interface IInfoSite
 
 class InfoSite : IInfoSite
 {
-    readonly IPhysicalPath physicalPath;
-    readonly JsonSerializerOptions serializerSetting;
     readonly DateTime dtCurrent = DateTime.Now.Date;
-    readonly INotification notification;
+    readonly IGetInfoSiteJSON getInfoJSON;
 
-    public InfoSite(INotification no, JsonSerializerOptions ss, IPhysicalPath pp)
+    Site site;
+    public InfoSite(IGetInfoSiteJSON getInfoJSON)
     {
-        this.notification = no;
-        this.serializerSetting = ss;
-        this.physicalPath = pp;
+        this.getInfoJSON = getInfoJSON;
     }
 
     public SiteInfoModel? GetSiteInfo(Site site)
     {
-        var fileJson = GetFileInfo(site);
-        var obj = GetInfoSiteFileJson(fileJson);
+        this.site = site;
 
+        //Process file json
+        var obj = this.getInfoJSON.Get(site);
+
+        return ProcessInfo(obj);
+    }
+
+    private SiteInfoModel? ProcessInfo(SiteInfoModel? obj)
+    {
         if (obj == null
             || obj.DueDate == DateTime.MinValue
             || obj.Status != StatusEnum.Active
@@ -36,39 +39,7 @@ class InfoSite : IInfoSite
         obj.TotalDays = (obj.DueDate - dtCurrent).TotalDays;
         obj.TotalDaysFirstMonth = (firstMonth - dtCurrent).TotalDays;
         obj.TotalDaysLastMonth = (firstMonth.AddMonths(1).AddDays(-1) - dtCurrent).TotalDays;
-        obj.InfoSite = site;
+        obj.InfoSite = this.site;
         return obj;
-    }
-
-    private SiteInfoModel? GetInfoSiteFileJson(string? pathFile)
-    {
-        if (string.IsNullOrEmpty(pathFile)) return null;
-
-        string content = File.ReadAllText(pathFile);
-
-        if (string.IsNullOrEmpty(content)) return null;
-
-        return ParseJson(content);
-    }
-
-    private string GetFileInfo(Site site)
-    {
-        var path = this.physicalPath.GetPhysicalPath(site);
-        var pathBack = this.physicalPath.GetPhysicalPathBack(path);
-        var fileJson = Directory.GetFiles(pathBack, Settings.FileNameInfo, SearchOption.TopDirectoryOnly).FirstOrDefault();
-        return fileJson ?? string.Empty;
-    }
-
-    private SiteInfoModel? ParseJson(string content)
-    {
-        try
-        {
-            return JsonSerializer.Deserialize<SiteInfoModel>(content, this.serializerSetting);
-        }
-        catch (Exception ex)
-        {
-            this.notification.WriteErrorLog(ex.Message);
-            return null;
-        }
     }
 }

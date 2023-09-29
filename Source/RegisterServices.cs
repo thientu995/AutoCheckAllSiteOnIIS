@@ -29,6 +29,7 @@ class RegisterServices
             })
             .AddSingleton<IPhysicalPath, PhysicalPath>()
             .AddSingleton<IInfoSite, InfoSite>()
+            .AddSingleton<IGetInfoSiteJSON, GetInfoSiteJSON>()
             .AddSingleton<INotification, Notification>()
             .AddSingleton<IProcessor, Processor>();
     }
