@@ -2,4 +2,4 @@
 
 var host = RegisterServices.CreateHostBuilder(args).Build();
 var program = host.Services.GetRequiredService<Startup>();
-program.Run();
+program.Run(host);

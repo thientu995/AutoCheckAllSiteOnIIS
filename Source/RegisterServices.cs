@@ -31,7 +31,8 @@ class RegisterServices
             .AddSingleton<IInfoSite, InfoSite>()
             .AddSingleton<IGetInfoSiteJSON, GetInfoSiteJSON>()
             .AddSingleton<INotification, Notification>()
-            .AddSingleton<IProcessor, Processor>();
+            .AddSingleton<IProcessor, Processor>()
+            ;
     }
 
     public class DateTimeConverter : JsonConverter<DateTime>

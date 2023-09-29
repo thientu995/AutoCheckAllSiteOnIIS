@@ -1,4 +1,7 @@
-﻿using Microsoft.Web.Administration;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Web.Administration;
 
 interface IMain
 {
@@ -12,21 +15,28 @@ class Startup
     readonly IProcessor processor;
     readonly IEnumerable<Site> lstSite;
     readonly INotification notification;
+    readonly IConfiguration config;
 
     public Startup(
         INotification notification,
         IInfoSite info,
         IProcessor notify,
-        ServerManager server
+        ServerManager server,
+        IConfiguration config,
+        IHost host
         )
     {
+        this.config = config;
         this.notification = notification;
         this.infoSite = info;
         this.processor = notify;
         this.lstSite = server.Sites.ToList();
+
+        //Get Setting
+        new Settings(host.Services.GetRequiredService<IConfiguration>());
     }
 
-    public void Run()
+    public void Run(IHost host)
     {
         //Auto stop site with expired
         this.CheckSites(this.lstSite.Where(x => x.State == ObjectState.Started));

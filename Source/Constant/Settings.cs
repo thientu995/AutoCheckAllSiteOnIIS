@@ -1,5 +1,14 @@
-﻿struct Settings
+﻿using Microsoft.Extensions.Configuration;
+interface ISettings
+{ }
+class Settings : ISettings
 {
+    static IConfiguration? config;
+    public Settings(IConfiguration _config)
+    {
+        config = _config;
+    }
+
     public const string Root = "/";
     public const string BackFolder = "..";
     public const string FileNameInfo = "info.json";
@@ -9,11 +18,23 @@
     public const int TotalDaysStopSite = 0;
     public const int TotalDaysExpired = 30;
     public const int LevelMin = 1;
-    public const int DefaultMaxDegreeOfParallelism = 8;
 
-#if DEBUG
-    public const bool ParallelEnable = false;
-#else
-    public const bool ParallelEnable = true;
-#endif
+
+    //get form config
+    public static int DefaultMaxDegreeOfParallelism
+    {
+        get
+        {
+            var value = config?.GetValue<int>(nameof(DefaultMaxDegreeOfParallelism)) ?? 8;
+            return value > 0 ? value : 8;
+        }
+    }
+
+    public static bool ParallelEnable
+    {
+        get
+        {
+            return config?.GetValue<bool>(nameof(ParallelEnable)) ?? true;
+        }
+    }
 }
